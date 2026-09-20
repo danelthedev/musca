@@ -1,0 +1,41 @@
+{
+ "greedy": {
+  "n": 200,
+  "fly_win%": 74.0,
+  "gammon%_of_wins": 33.1,
+  "gammon%_of_losses": 9.6,
+  "med_plies": 128,
+  "fly_blots": 1.42,
+  "fly_made": 2.67,
+  "fly_prime": 1.53,
+  "fly_stack": 6.23,
+  "fly_hits_for": 5.2,
+  "fly_hits_vs": 5.38
+ },
+ "random": {
+  "n": 200,
+  "fly_win%": 95.5,
+  "gammon%_of_wins": 75.9,
+  "gammon%_of_losses": 11.1,
+  "med_plies": 134,
+  "fly_blots": 1.51,
+  "fly_made": 2.62,
+  "fly_prime": 1.6,
+  "fly_stack": 6.37,
+  "fly_hits_for": 11.24,
+  "fly_hits_vs": 5.21
+ },
+ "prior": {
+  "n": 200,
+  "fly_win%": 77.0,
+  "gammon%_of_wins": 32.5,
+  "gammon%_of_losses": 10.9,
+  "med_plies": 111,
+  "fly_blots": 1.27,
+  "fly_made": 2.6,
+  "fly_prime": 1.56,
+  "fly_stack": 6.28,
+  "fly_hits_for": 2.59,
+  "fly_hits_vs": 1.22
+ }
+}

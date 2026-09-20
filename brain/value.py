@@ -31,8 +31,10 @@ class Head:
         self.Win = win_mat(self.n, self.dim, seed)
         if w is None:
             w = np.zeros(self.n + self.dim + 1)  # +1 bias
-            # ponytail: sane start, V in [0,1]. diff idx n+29, bias last
+            # ponytail: sane start, V in [0,1]. diff idx n+29, shots n+38/39, bias last
             w[self.n + 29] = 0.4
+            w[self.n + 38] = -0.3  # own exposure bad
+            w[self.n + 39] = 0.3  # opp exposure good
             w[-1] = 0.5
         self.w = np.asarray(w, float)
 

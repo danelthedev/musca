@@ -1,0 +1,4 @@
+{"note": "Original 38-dim head (pre-feature-extension), 200 games each, measured 2026-09-20 before phase 2. Prior-only head was ~94.5% vs random.",
+ "greedy": {"n": 200, "fly_win%": 63.0},
+ "random": {"n": 200, "fly_win%": 97.5},
+ "prior": {"n": 200, "fly_win%": 93.5}}

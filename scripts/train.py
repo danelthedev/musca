@@ -25,7 +25,7 @@ from brain import flybrain as F
 
 def parse(a):
     o = dict(n=512, gamesA=300, gamesB=200, gamesC=300, alpha=1e-4, lam=0.7,
-             eps0=0.15, eps1=0.02, seed=1, eval_every=100, w0=None,
+             eps0=0.15, eps1=0.02, seed=1, eval_every=100, w0=None, equity=0,
              outdir=str(ROOT / "brain" / "weights"))
     i = 0
     while i < len(a):
@@ -97,7 +97,8 @@ def train_stage(head, games, opp_fn, o, prog, tag, snap_every=0):
                 vs.append(float(head.w @ phis[-1]))
                 win, wnr = g.check_win()
                 if win:
-                    reward = 1.0 if wnr == 0 else 0.0
+                    mult, _ = g.win_multiplier(wnr)
+                    reward = (mult / 3.0 if o["equity"] else 1.0) if wnr == 0 else 0.0
                     done = "win"
                     break
                 if not g.moves_left or not g.has_any_legal():
@@ -105,7 +106,7 @@ def train_stage(head, games, opp_fn, o, prog, tag, snap_every=0):
             if done:
                 break
             if g.check_technical_win(mover):
-                reward = 1.0 if mover == 0 else 0.0
+                reward = (2.0 / 3.0 if o["equity"] else 1.0) if mover == 0 else 0.0
                 break
             g.moves_left, g.has_rolled, g.turn = [], False, 1 - g.turn
         # backward TD(lambda) over ply sequence
