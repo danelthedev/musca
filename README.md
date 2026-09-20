@@ -23,6 +23,14 @@ cd musca && .venv/bin/python bot.py random
 
 `BG_URL` overrides API base (default `http://localhost:8080`).
 
+Fly side defaults to the untrained reservoir. `--w` switches it to the 1-ply
+value head: a `brain/weights/*.npz` file (trained) or `prior` (pip-prior).
+```sh
+# trained head vs random, 20 games (server)
+cd musca && .venv/bin/python scripts/eval.py 20 random 2 --w brain/weights/best.npz
+# fast local eval, no server
+cd musca && .venv/bin/python scripts/eval_local.py 200 greedy 4 --n 512 --w brain/weights/best.npz
+```
 ## Brain data
 
 - `brain/downloader.py` fetches ~1.1GB raw into `data/malecns/raw/`

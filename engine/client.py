@@ -93,9 +93,14 @@ class WS:
             self._fill(10)
             ln = struct.unpack("!Q", self.buf[2:10])[0]
             off = 10
-        if b1 & 0x0F == 0x9:  # ping -> pong
+        if b1 & 0x0F == 0x9:  # ping -> masked pong (else server 60s read deadline kills us)
             self._fill(off + ln)
+            payload = self.buf[off:off + ln]
             self.buf = self.buf[off + ln:]
+            mask = os.urandom(4)
+            mp = bytes(b ^ mask[i % 4] for i, b in enumerate(payload))
+            with self.lock:
+                self.sock.sendall(struct.pack("!BB", 0x8A, 0x80 | len(payload)) + mask + mp)
             return {"t": "ping"}
         if b1 & 0x0F == 0x8:
             raise ConnectionError("ws close")

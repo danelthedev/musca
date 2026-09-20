@@ -89,7 +89,6 @@ def score_moves(W, board, bar, off, turn, moves, seed=1, steps=2):
     return [m for _, m in scored]
 
 def _pip_delta(board, bar, m, turn):
-    d = -1 if turn == 0 else 1
     if m["to"] == -2:
-        return -m["die"] * d * d  # bearing off always good
+        return -float(m["die"])  # bearing off always good, mover-agnostic
     return 0.0
