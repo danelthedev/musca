@@ -1,0 +1,14 @@
+distill: teacher n=512 student n=10000 dim=10053 games=2500 jobs=4 lam=1.0
+  accumulated 98714 positions (2610s)
+  accumulated 195941 positions (3002s)
+  accumulated 295026 positions (3400s)
+  accumulated 395252 positions (3803s)
+collected 395252 positions in 3803s
+solve done, mean train resid^2=0.00059
+saved -> /var/home/danel/Projects/musca/brain/weights_10k/student10k.npz
+/var/home/danel/Projects/musca/brain/gpu.py:23: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:848.)
+  self.Wsp = torch.sparse_csr_tensor(
+/var/home/danel/Projects/musca/brain/gpu.py:23: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/SparseCsrTensorImpl.cpp:49.)
+  self.Wsp = torch.sparse_csr_tensor(
+STUDENT-10k vs TEACHER 1-ply: 125/200 = 62.5%
+DISTILL-DONE

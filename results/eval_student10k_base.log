@@ -1,0 +1,6 @@
+# student10k_base w=brain/weights_10k/student10k.npz n=512 games=200 dev=cuda jobs=4
+ladder-vs-random: 199/200 = 99.5% avm=2.44 gammon=92.5%
+ladder-vs-greedy: 174/200 = 87.0% avm=1.74 gammon=60.9%
+ladder-vs-solid: 139/200 = 69.5% avm=1.25 gammon=23.0%
+h2h-vs-stageC_n512: 152/300 = 50.7%
+(62.7s)

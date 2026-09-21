@@ -169,6 +169,10 @@ def train_loop_par(head, stages, o, prog, out, pool, gh):
                     sc = eval_vs(head, sim.random_policy, o["eval_games"], 99999,
                                  chooser=(lambda g_, m_, r_: gh.choose_batch([(g_, m_)], r_)[0]) if gh else None)
                     print(f"  eval@{prog['total']}: {100 * sc:.1f}% vs random", flush=True)
+                    if prog["total"] % 500 == 0:
+                        sg = eval_vs(head, G.policy, 40, 777000,
+                                     chooser=(lambda g_, m_, r_: gh.choose_batch([(g_, m_)], r_)[0]) if gh else None)
+                        print(f"  eval@{prog['total']}: {100 * sg:.1f}% vs greedy (40)", flush=True)
                     if sc > prog["best"]:
                         prog["best"] = sc
                         head.save(out / "best.npz")
@@ -242,6 +246,10 @@ def train_loop(head, stages, o, prog, out, gh=None, gh_snap=None, snap_head=None
                 sc = eval_vs(head, sim.random_policy, o["eval_games"], 99999,
                              chooser=(lambda g_, m_, r_: gh.choose_batch([(g_, m_)], r_)[0]) if gh else None)
                 print(f"  eval@{prog['total']}: {100 * sc:.1f}% vs random", flush=True)
+                if prog["total"] % 500 == 0:
+                    sg = eval_vs(head, G.policy, 40, 777000,
+                         chooser=(lambda g_, m_, r_: gh.choose_batch([(g_, m_)], r_)[0]) if gh else None)
+                    print(f"  eval@{prog['total']}: {100 * sg:.1f}% vs greedy (40)", flush=True)
                 if sc > prog["best"]:
                     prog["best"] = sc
                     head.save(out / "best.npz")
