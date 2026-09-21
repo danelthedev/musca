@@ -1,0 +1,13 @@
+Pure verdict-prep live verify (server :8085, FLY_ACTIVITY_LOG):
+- room 3PUS expert(Fly*) = league2 weights, pure 1-ply Choose
+- WS play: human acted 2 moves, BOT-MOVED x3 observed
+- activity log: 2 lines, variant=expert, x-dim=512, v present
+- Go fly tests pass with new fly.json/vectors
+League2 live verify (server :8086, variants=[untrained trained expert league2 student_league]):
+- room GLME variant=league2 (Fly2), WS play: human acted 2, BOT-MOVED x2
+- activity log /tmp/pure_act2.jsonl: 2 lines, 20380 bytes
+Expert promotion (user: best model available, no verdict match):
+- fly.json expert weights == league2 stageC (verified elementwise True)
+- keys: expert, league2, student_league, trained, untrained
+- build + fly tests + bin rebuild: ALL-OK
+- live verify room YYZ9 variant=expert: BOT-MOVED x2, activity 2 lines

@@ -1,0 +1,16 @@
+  league2-vs-greedy 50/200 wins=49
+  league2-vs-greedy 100/200 wins=96
+  league2-vs-greedy 150/200 wins=141
+  league2-vs-greedy 200/200 wins=182
+league2-vs-greedy: 182/200 = 91.0%
+  league2-vs-studleague 50/200 wins=27
+  league2-vs-studleague 100/200 wins=55
+  league2-vs-studleague 150/200 wins=82
+  league2-vs-studleague 200/200 wins=114
+league2-vs-studleague: 114/200 = 57.0%
+  league2-vs-league 50/200 wins=28
+  league2-vs-league 100/200 wins=56
+  league2-vs-league 150/200 wins=84
+  league2-vs-league 200/200 wins=119
+league2-vs-league: 119/200 = 59.5%
+L2-EVAL-DONE

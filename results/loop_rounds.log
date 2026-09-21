@@ -1,0 +1,2 @@
+Round 1 (league-100k + ExpertChoose vs expert + ExpertChoose, 100 games): 47/100 = 47.0% -> NO GAIN (champion stays expert+ExpertChoose)
+Round 2 (distilled-linear-student + ExpertChoose vs expert + ExpertChoose, 100 games): 48/100 = 48.0% -> NO GAIN (2nd consecutive; loop stops, champion stays expert+ExpertChoose)

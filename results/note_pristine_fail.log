@@ -1,0 +1,5 @@
+TestDoubleAcceptScoresStake (fair_backgammon/tests/doubling_test.go:47) FAILs.
+Scope proof it is pre-existing and unrelated to pure-fly work:
+- git diff --name-only touches only: api/handlers.go, bin/fair_backgammon, fly/* (bot.go, fly.json, activity.go, activity_test.go; deleted search/race/mlp files)
+- tests/, lobby/, game/ untouched by this goal.
+- Failing assertion scores [4 0] vs want [2 0]: doubling-stake logic, no fly code path involved.

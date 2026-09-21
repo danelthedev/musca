@@ -1,0 +1,43 @@
+train: n=512 dim=52 alpha_eff=3.91e-04 lam=0.7 eps 0.15->0.02
+start eval: 100.0% vs random
+  [A-vs-random] game 25/200 (total 25)
+  [A-vs-random] game 50/200 (total 50)
+  [A-vs-random] game 75/200 (total 75)
+  [A-vs-random] game 100/200 (total 100)
+  eval@100: 95.0% vs random
+  [A-vs-random] game 125/200 (total 125)
+  [A-vs-random] game 150/200 (total 150)
+  [A-vs-random] game 175/200 (total 175)
+  [A-vs-random] game 200/200 (total 200)
+  eval@200: 95.0% vs random
+  [B-vs-greedy] game 25/200 (total 225)
+  [B-vs-greedy] game 50/200 (total 250)
+  [B-vs-greedy] game 75/200 (total 275)
+  [B-vs-greedy] game 100/200 (total 300)
+  eval@300: 95.0% vs random
+  [B-vs-greedy] game 125/200 (total 325)
+  [B-vs-greedy] game 150/200 (total 350)
+  [B-vs-greedy] game 175/200 (total 375)
+  [B-vs-greedy] game 200/200 (total 400)
+  eval@400: 97.5% vs random
+  [C-selfplay] game 25/400 (total 425)
+  [C-selfplay] game 50/400 (total 450)
+  [C-selfplay] game 75/400 (total 475)
+  [C-selfplay] game 100/400 (total 500)
+  eval@500: 100.0% vs random
+  [C-selfplay] game 125/400 (total 525)
+  [C-selfplay] game 150/400 (total 550)
+  [C-selfplay] game 175/400 (total 575)
+  [C-selfplay] game 200/400 (total 600)
+  eval@600: 95.0% vs random
+  [C-selfplay] game 225/400 (total 625)
+  [C-selfplay] game 250/400 (total 650)
+  [C-selfplay] game 275/400 (total 675)
+  [C-selfplay] game 300/400 (total 700)
+  eval@700: 95.0% vs random
+  [C-selfplay] game 325/400 (total 725)
+  [C-selfplay] game 350/400 (total 750)
+  [C-selfplay] game 375/400 (total 775)
+  [C-selfplay] game 400/400 (total 800)
+  eval@800: 97.5% vs random
+FINAL: 98.0% vs random (100 games), best 100.0%, 59.2s -> brain/weights_league2
