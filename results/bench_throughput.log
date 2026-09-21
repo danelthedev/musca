@@ -1,0 +1,22 @@
+== load connectome ==
+full W: (191696, 191696) nnz=25117038 (0.3s)
+== A: reservoir step, scipy CPU ==
+scipy full-brain step x2: 73.6 ms/game-ply
+== A: reservoir step, torch ==
+torch 2.14.0+cu130 device=cuda
+gpu: NVIDIA GeForce RTX 3080
+/var/home/danel/Projects/musca/scripts/bench_throughput.py:62: UserWarning: Sparse invariant checks are implicitly disabled. Memory errors (e.g. SEGFAULT) will occur when operating on a sparse tensor which violates the invariants, but checks incur performance overhead. To silence this warning, explicitly opt in or out. See `torch.sparse.check_sparse_tensor_invariants.__doc__` for guidance.  (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/Context.cpp:848.)
+  Wsp = torch.sparse_csr_tensor(crow, col, val, size=W.shape, device=dev)
+/var/home/danel/Projects/musca/scripts/bench_throughput.py:62: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/SparseCsrTensorImpl.cpp:49.)
+  Wsp = torch.sparse_csr_tensor(crow, col, val, size=W.shape, device=dev)
+torch-cuda batch=1: 5.1 ms/step-x2
+torch-cuda batch=32: 9.3 ms/step-x2
+== B: play_game profile ==
+random-vs-random (rules only): 0.03 s/game
+1-ply-512 self-play: 0.04 s/game (brain ~0.01s)
+==> ~2228206 games/day/core at n=512
+== C: phi scaling ==
+phi n=512: 0.04 ms/call (nnz=13953)
+phi n=2048: 0.24 ms/call (nnz=147402)
+phi n=10000: 2.35 ms/call (nnz=1157106)
+BENCH-DONE

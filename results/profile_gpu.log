@@ -1,0 +1,92 @@
+wall: n=10000 batch=1: 0.08 ms/call
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                            aten::addmm         6.90%     211.910us        27.82%     854.829us      21.371us     442.573us        61.53%     885.146us      22.129us            40  
+                                           aten::matmul         1.26%      38.800us        34.93%       1.073ms      21.462us       0.000us         0.00%     612.720us      12.254us            50  
+                                               aten::mm         9.06%     278.390us        32.13%     987.289us      19.746us     146.211us        20.33%     612.720us      12.254us            50  
+void cusparse::csrmv_v3_kernel<std::integral_constan...         0.00%       0.000us         0.00%       0.000us       0.000us     347.562us        48.32%     347.562us      17.378us            20  
+std::enable_if<true, void>::type internal::gemvx::ke...         0.00%       0.000us         0.00%       0.000us       0.000us     110.594us        15.38%     110.594us       5.530us            20  
+void cusparse::(anonymous namespace)::csr_partition_...         0.00%       0.000us         0.00%       0.000us       0.000us      69.093us         9.61%      69.093us       3.455us            20  
+                                            aten::fill_         2.89%      88.690us        53.32%       1.638ms      40.955us      46.945us         6.53%      46.945us       1.174us            40  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      46.945us         6.53%      46.945us       1.174us            40  
+                                            aten::zeros         1.49%      45.760us        56.82%       1.746ms      58.190us       0.000us         0.00%      36.128us       1.204us            30  
+                                            aten::zero_         1.01%      30.990us        52.98%       1.628ms      54.255us       0.000us         0.00%      36.128us       1.204us            30  
+                                             aten::tanh         2.10%      64.550us         3.63%     111.579us       5.579us      35.809us         4.98%      35.809us       1.790us            20  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      35.809us         4.98%      35.809us       1.790us            20  
+                                              aten::add         2.67%      82.040us         4.20%     129.099us       6.455us      29.538us         4.11%      29.538us       1.477us            20  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      29.538us         4.11%      29.538us       1.477us            20  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 3.072ms
+Self CUDA time total: 719.253us
+
+PROFILE-DONE
+wall: n=10000 batch=32: 0.38 ms/call
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                            aten::addmm         4.47%     203.589us        17.03%     775.567us      19.389us       2.805ms        84.93%       5.611ms     140.264us            40  
+                                           aten::matmul         0.84%      38.259us        22.60%       1.029ms      20.579us       0.000us         0.00%       3.122ms      62.445us            50  
+                                               aten::mm         6.06%     275.859us        20.76%     945.296us      18.906us     281.062us         8.51%       3.122ms      62.445us            50  
+void cusparse::csrmm_alg2_kernel<false, false, false...         0.00%       0.000us         0.00%       0.000us       0.000us       2.637ms        79.84%       2.637ms     131.864us            20  
+                                 ampere_sgemm_32x128_nn         0.00%       0.000us         0.00%       0.000us       0.000us     220.930us         6.69%     220.930us      11.046us            20  
+void cusparse::(anonymous namespace)::csr_partition_...         0.00%       0.000us         0.00%       0.000us       0.000us     102.148us         3.09%     102.148us       5.107us            20  
+                                              aten::add         1.65%      74.920us         2.60%     118.500us       5.925us      71.807us         2.17%      71.807us       3.590us            20  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      71.807us         2.17%      71.807us       3.590us            20  
+void cusparse::matrix_scalar_multiply_kernel<cuspars...         0.00%       0.000us         0.00%       0.000us       0.000us      65.857us         1.99%      65.857us       3.293us            20  
+                                            aten::fill_         1.85%      84.360us        30.51%       1.389ms      34.732us      64.865us         1.96%      64.865us       1.622us            40  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      64.865us         1.96%      64.865us       1.622us            40  
+                                            aten::zeros         0.94%      42.580us        32.79%       1.493ms      49.767us       0.000us         0.00%      54.049us       1.802us            30  
+                                            aten::zero_         0.66%      29.880us        30.34%       1.382ms      46.051us       0.000us         0.00%      54.049us       1.802us            30  
+                                             aten::tanh         1.33%      60.760us         2.30%     104.910us       5.245us      50.272us         1.52%      50.272us       2.514us            20  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 4.553ms
+Self CUDA time total: 3.303ms
+
+PROFILE-DONE
+wall: n=191696 batch=1: 1.20 ms/call
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                            aten::addmm         1.57%     196.708us         6.56%     819.546us      20.489us       9.423ms        84.44%      18.847ms     471.170us            40  
+                                           aten::matmul         0.30%      37.250us         8.45%       1.055ms      21.104us       0.000us         0.00%      10.977ms     219.533us            50  
+                                               aten::mm         2.23%     278.878us         7.78%     971.906us      19.438us       1.514ms        13.57%      10.977ms     219.533us            50  
+void cusparse::csrmv_v3_kernel<std::integral_constan...         0.00%       0.000us         0.00%       0.000us       0.000us       9.248ms        82.87%       9.248ms     462.412us            20  
+std::enable_if<true, void>::type internal::gemvx::ke...         0.00%       0.000us         0.00%       0.000us       0.000us       1.461ms        13.09%       1.461ms      73.027us            20  
+void cusparse::(anonymous namespace)::csr_partition_...         0.00%       0.000us         0.00%       0.000us       0.000us     143.617us         1.29%     143.617us       7.181us            20  
+                                              aten::add         0.63%      79.040us         0.99%     123.790us       6.190us      82.594us         0.74%      82.594us       4.130us            20  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      82.594us         0.74%      82.594us       4.130us            20  
+                                            aten::fill_         0.73%      90.630us        11.82%       1.477ms      36.918us      64.868us         0.58%      64.868us       1.622us            40  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      64.868us         0.58%      64.868us       1.622us            40  
+                                            aten::zeros         0.41%      50.660us        12.82%       1.601ms      53.359us       0.000us         0.00%      53.955us       1.799us            30  
+                                            aten::zero_         0.24%      30.360us        11.76%       1.469ms      48.971us       0.000us         0.00%      53.955us       1.799us            30  
+                                             aten::tanh         0.53%      66.650us         0.89%     111.329us       5.566us      49.186us         0.44%      49.186us       2.459us            20  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us      49.186us         0.44%      49.186us       2.459us            20  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 12.489ms
+Self CUDA time total: 11.160ms
+
+PROFILE-DONE
+wall: n=191696 batch=32: 9.00 ms/call
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                                   Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg     Self CUDA   Self CUDA %    CUDA total  CUDA time avg    # of Calls  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                                            aten::addmm         0.23%     202.609us         0.89%     784.328us      19.608us      75.650ms        87.34%     151.300ms       3.783ms            40  
+                                           aten::matmul         0.04%      37.230us         1.17%       1.033ms      20.656us       0.000us         0.00%      81.785ms       1.636ms            50  
+                                               aten::mm         0.31%     276.570us         1.08%     951.008us      19.020us       5.363ms         6.19%      81.785ms       1.636ms            50  
+void cusparse::csrmm_alg2_kernel<false, false, false...         0.00%       0.000us         0.00%       0.000us       0.000us      73.977ms        85.40%      73.977ms       3.699ms            20  
+                                 ampere_sgemm_32x128_nn         0.00%       0.000us         0.00%       0.000us       0.000us       4.948ms         5.71%       4.948ms     247.408us            20  
+                                              aten::add         0.09%      75.040us         0.14%     120.680us       6.034us       2.212ms         2.55%       2.212ms     110.587us            20  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       2.212ms         2.55%       2.212ms     110.587us            20  
+                                             aten::tanh         0.07%      60.939us         0.13%     112.829us       5.641us       1.490ms         1.72%       1.490ms      74.499us            20  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       1.490ms         1.72%       1.490ms      74.499us            20  
+                                            aten::fill_         0.10%      85.000us         1.56%       1.378ms      34.445us       1.150ms         1.33%       1.150ms      28.749us            40  
+void at::native::vectorized_elementwise_kernel<4, at...         0.00%       0.000us         0.00%       0.000us       0.000us       1.150ms         1.33%       1.150ms      28.749us            40  
+                                            aten::zeros         0.05%      44.340us         1.68%       1.484ms      49.469us       0.000us         0.00%       1.135ms      37.830us            30  
+                                            aten::zero_         0.03%      29.339us         1.55%       1.369ms      45.634us       0.000us         0.00%       1.135ms      37.830us            30  
+void cusparse::(anonymous namespace)::csr_partition_...         0.00%       0.000us         0.00%       0.000us       0.000us     875.885us         1.01%     875.885us      43.794us            20  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 88.085ms
+Self CUDA time total: 86.619ms
+
+PROFILE-DONE

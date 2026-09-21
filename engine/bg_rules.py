@@ -70,14 +70,29 @@ def _is_legal_inner(board, bar, frm, to, die, turn):
 def legal_moves(board, bar, moves_left, has_rolled, turn):
     if not has_rolled or not moves_left:
         return []
+    # ponytail: same nested order as brute force (d, frm, to), but only
+    # arithmetically-possible (frm, to) pairs reach _is_legal_inner.
+    # Every skipped pair provably returns False there: entry must equal
+    # 24-d/d-1, normal moves must span exactly d, empty points hold nothing.
+    # Emission order identical -> choose()/policies behave bit-identically.
     out = []
     for d in set(moves_left):
         for frm in [-1] + list(range(24)):
-            if frm == -1 and bar[turn] == 0:
-                continue
-            for to in [-2] + list(range(24)):
-                if to == -1:
+            if frm == -1:
+                if bar[turn] == 0:
                     continue
-                if _is_legal_inner(board, bar, frm, to, d, turn):
-                    out.append({"from": frm, "to": to, "die": d})
+                entry = 24 - d if turn == 0 else d - 1
+                if _is_legal_inner(board, bar, -1, entry, d, turn):
+                    out.append({"from": -1, "to": entry, "die": d})
+                continue
+            v = board[frm]
+            if turn == 0 and v <= 0:
+                continue
+            if turn == 1 and v >= 0:
+                continue
+            if _is_legal_inner(board, bar, frm, -2, d, turn):
+                out.append({"from": frm, "to": -2, "die": d})
+            to = frm - d if turn == 0 else frm + d
+            if 0 <= to < 24 and _is_legal_inner(board, bar, frm, to, d, turn):
+                out.append({"from": frm, "to": to, "die": d})
     return out

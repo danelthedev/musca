@@ -1,0 +1,3 @@
+# smoke w=brain/weights_league2/stageC_n512.npz n=512 games=20
+ladder-vs-greedy: 16/20 = 80.0% avm=1.69 gammon=62.5%
+(1.1s)

@@ -26,6 +26,7 @@ class Game:
         self.dice = [0, 0]
         self.moves_left = []
         self.has_rolled = False
+        self._mc = None  # memo: (state-key, moves) for legal_moves
 
     def clone(self):
         g = Game.__new__(Game)
@@ -36,6 +37,7 @@ class Game:
         g.dice = list(self.dice)
         g.moves_left = list(self.moves_left)
         g.has_rolled = self.has_rolled
+        g._mc = None
         return g
 
     def roll(self, rng):
@@ -45,7 +47,18 @@ class Game:
         self.has_rolled = True
 
     def legal_moves(self):
-        return R.legal_moves(self.board, self.bar, self.moves_left, self.has_rolled, self.turn)
+        # ponytail: train/eval call has_any_legal() then legal_moves() on the
+        # same state; memo makes the second free. Key covers full state so
+        # direct attribute mutation by callers stays correct.
+        key = (tuple(self.board), tuple(self.bar), tuple(self.moves_left),
+               self.has_rolled, self.turn)
+        hit = getattr(self, "_mc", None)
+        if hit is not None and hit[0] == key:
+            return list(hit[1])
+        ms = R.legal_moves(self.board, self.bar, self.moves_left,
+                          self.has_rolled, self.turn)
+        self._mc = (key, ms)
+        return list(ms)
 
     def has_any_legal(self):
         return len(self.legal_moves()) > 0
