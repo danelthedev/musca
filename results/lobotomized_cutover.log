@@ -1,7 +1,0 @@
-Lobotomized fly cutover (user order: single best fly, cleanup legacy):
-- fly.json: single key [lobotomized] = league2 weights (934KB)
-- arena: all variants collapsed; botname "Lobotomized fly"; bot.go fixed weights
-- deleted: search/race/mlp Go files+tests, em/mlp vectors+mlp.json, variant_verification.log
-- handlers: blind fly-a/fly-b branches removed; main.go FLY_W fallback simplified; fmt import dropped
-- web: variant dropdown removed, button "Play vs Lobotomized fly", dist rebuilt, Lobby.test green
-- Go fly tests pass; room 74NB live: BOT-MOVED x2, activity 2 lines; bin rebuilt

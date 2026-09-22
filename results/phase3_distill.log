@@ -1,5 +1,0 @@
-Phase 3 student_league (200 games each):
-studleague-vs-greedy: 170/200 = 85.0%
-studleague-vs-league: 114/200 = 57.0%
-studleague-vs-expert: 109/200 = 54.5%
-distill: 329935 positions, RMSE 0.0290

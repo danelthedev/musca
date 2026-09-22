@@ -1,0 +1,6 @@
+# td50k w=brain/weights_10k_td/ckpt_50000.npz n=512 games=200 dev=cuda jobs=4
+ladder-vs-random: 198/200 = 99.0% avm=2.58 gammon=94.4%
+ladder-vs-greedy: 188/200 = 94.0% avm=1.78 gammon=62.8%
+ladder-vs-solid: 168/200 = 84.0% avm=1.51 gammon=40.5%
+h2h-vs-stageC_n512: 202/300 = 67.3%
+(90.1s)

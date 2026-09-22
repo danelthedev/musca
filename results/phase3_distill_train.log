@@ -1,4 +1,0 @@
-collected 329935 positions in 2674s
-heldout RMSE 0.0290 target std 0.1934 n=329935
-saved -> brain/weights/student_league.npz
-STUDENT vs TEACHER 1-ply: 115/200 = 57.5%

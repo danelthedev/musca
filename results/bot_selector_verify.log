@@ -1,9 +1,0 @@
-Bot-selector UI verification (new objective):
-- Lobby.tsx: BOTS registry [{id:lobotomized,label:Lobotomized fly}], dropdown
-  aria-label="bot", button "Play vs Bot" -> createVsFly(variant)
-- Lobby.test.tsx: "creates vs-bot room with chosen bot" GREEN (vitest 1 passed)
-- api/handlers.go: botNames map {"lobotomized":"Lobotomized fly"}, unknown -> 400
-- live :8090: variant=lobotomized -> room + Lobotomized fly seat; unknown bot -> "unknown bot"
-- live WS game via registry path: human acted 2, BOT-MOVED x4
-- Go build + fly tests pass; web dist rebuilt; bin/fair_backgammon rebuilt
-- fly constraints intact: 1-ply Choose, linear readout, no live search (grep CLEAN)

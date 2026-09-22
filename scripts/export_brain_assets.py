@@ -16,12 +16,12 @@ import numpy as np
 
 def parse(a):
     o = dict(n=512, out="/var/home/danel/Projects/fair_backgammon/web/public",
-             axes="0,2")
+             axes="0,2", slice=None)
     i = 0
     while i < len(a):
         if a[i].startswith("--") and i + 1 < len(a):
             k = a[i][2:]
-            o[k] = a[i + 1] if k in ("out", "axes") else int(a[i + 1])
+            o[k] = a[i + 1] if k in ("out", "axes", "slice") else int(a[i + 1])
             i += 2
         else:
             i += 1
@@ -35,8 +35,9 @@ def main():
     z = np.load(str(ROOT / "data" / "soma_xyz.npz"))
     xyz, valid = z["xyz"], z["valid"]
     n = o["n"]
-    pos = xyz[:n]
-    ok = valid[:n]
+    rows = np.load(o["slice"]) if o.get("slice") else np.arange(n)
+    pos = xyz[rows]
+    ok = valid[rows]
     X, Y = xyz[valid][:, lr], xyz[valid][:, ap]
     lox, hix = float(X.min()), float(X.max())
     loy, hiy = float(Y.min()), float(Y.max())

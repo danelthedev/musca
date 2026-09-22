@@ -1,5 +1,0 @@
-Phase 2 multi-head (best_multi.npz, 200 games each):
-multi-vs-greedy: 155/200 = 77.5%
-multi-vs-league: 100/200 = 50.0%
-multi-vs-expert: 84/200 = 42.0%
-pure-champion reference (league 1-ply): 196/200 random, 173/200 greedy

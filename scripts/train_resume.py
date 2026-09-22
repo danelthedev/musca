@@ -32,7 +32,7 @@ def parse(a):
     o = dict(n=512, slice=None, gamesA=300, gamesB=200, gamesC=300, alpha=1e-4,
              lam=0.7, eps0=0.15, eps1=0.02, seed=1, eval_every=100,
              eval_games=20, ckpt_every=50, w0=None, device="cpu",
-             outdir=str(ROOT / "brain" / "weights_10k"), resume=None, workers=1)
+             outdir=str(ROOT / "brain" / "weights_10k"), resume=None, workers=1, interleave=0)
     i = 0
     while i < len(a):
         k = a[i]
@@ -93,7 +93,7 @@ def load_state(out):
     prog = {"total": int(z["total"]), "stage": int(z["stage"]),
             "done": int(z["done"]), "seed": int(z["seed"]),
             "best": float(z["best"]), "snap_w": z["snap_w"],
-            "sdone": list(z["sdone"]) if "sdone" in z else [0, 0, 0]}
+            "sdone": [int(v) for v in z["sdone"]] if "sdone" in z else [0, 0, 0]}
     r = random.Random()
     r.setstate(tuple(z["rngstate"]))
     prog["rng"] = r
@@ -102,6 +102,213 @@ def load_state(out):
 
 from brain import pargen as _pargen
 from brain.pargen import play_game_data
+
+def train_loop_interleaved(head, stages, o, prog, out, gh, gh_snap, snap_head, K):
+    """Lockstep K games, shared GPU calls. Per-game totals preassigned and RNG
+    per-game seeded: deterministic and reproducible, but a different learning
+    path from sequential (disclosed, same class as parallel staleness). Pending
+    GPU decisions across games resolve in one choose_batch per head per round;
+    finished games featurize in one phi_batch; TD updates apply in game-index
+    order. Snapshot refreshes on absolute total multiples of 50."""
+    import numpy as np
+    a_eff = o["alpha"] * (2000.0 / head.n)
+    lam = o["lam"]
+    e = np.zeros_like(head.w)
+    span = sum(g for _, g, _ in stages)
+    use_cuda = gh is not None
+    if use_cuda:
+        import torch as _torch
+    snap_head = None
+    if not use_cuda:
+        snap_head = V.Head(head.W, seed=7, w=np.array(prog["snap_w"], float))
+    si = 0
+    req = [g for _, g, _ in stages]
+    while si < len(stages) and prog["sdone"][si] >= req[si]:
+        si += 1
+    prog["stage"] = si
+    q = [0]
+
+    def do_apply(ag, m):
+        g = ag["g"]
+        g.apply(m)
+        ag["us"].append((list(g.board), list(g.bar), list(g.off), g.turn))
+        win, wnr = g.check_win()
+        if win:
+            mult, _ = g.win_multiplier(wnr)
+            ag["reward"] = mult / 3.0 if wnr == 0 else 0.0
+            return True
+        return False
+
+    def step(ag, t_req, s_req):
+        g, rng = ag["g"], ag["rng"]
+        while True:
+            if ag["phase"] == "roll":
+                g.roll(rng)
+                if not g.has_any_legal():
+                    g.moves_left, g.has_rolled, g.turn = [], False, 1 - g.turn
+                    continue
+                ag["mover"] = g.turn
+                ag["phase"] = "move"
+            moves = g.legal_moves()
+            if not moves:
+                if g.check_technical_win(ag["mover"]):
+                    ag["reward"] = 2.0 / 3.0 if ag["mover"] == 0 else 0.0
+                    return "done"
+                g.moves_left, g.has_rolled, g.turn = [], False, 1 - g.turn
+                ag["phase"] = "roll"
+                continue
+            is_trainee = (ag["mover"] == 0) == ag["white"]
+            if is_trainee and rng.random() < ag["eps"]:
+                if do_apply(ag, rng.choice(moves)):
+                    return "done"
+                if not g.moves_left or not g.has_any_legal():
+                    if g.check_technical_win(ag["mover"]):
+                        ag["reward"] = 2.0 / 3.0 if ag["mover"] == 0 else 0.0
+                        return "done"
+                    g.moves_left, g.has_rolled, g.turn = [], False, 1 - g.turn
+                    ag["phase"] = "roll"
+                continue
+            if is_trainee:
+                if use_cuda:
+                    t_req.append((ag, moves))
+                    return "wait"
+                if do_apply(ag, head.choose(g, moves, rng)):
+                    return "done"
+                if not g.moves_left or not g.has_any_legal():
+                    if g.check_technical_win(ag["mover"]):
+                        ag["reward"] = 2.0 / 3.0 if ag["mover"] == 0 else 0.0
+                        return "done"
+                    g.moves_left, g.has_rolled, g.turn = [], False, 1 - g.turn
+                    ag["phase"] = "roll"
+                continue
+            if ag["kind"] == "snap":
+                if use_cuda:
+                    s_req.append((ag, moves))
+                    return "wait"
+                if do_apply(ag, snap_head.choose(g, moves, rng)):
+                    return "done"
+            else:
+                if do_apply(ag, ag["opp"](g, moves, rng)):
+                    return "done"
+            if not g.moves_left or not g.has_any_legal():
+                if g.check_technical_win(ag["mover"]):
+                    ag["reward"] = 2.0 / 3.0 if ag["mover"] == 0 else 0.0
+                    return "done"
+                g.moves_left, g.has_rolled, g.turn = [], False, 1 - g.turn
+                ag["phase"] = "roll"
+            continue
+
+    def apply_update(phis, vs, reward):
+        e[:] = 0.0
+        for t in range(len(phis)):
+            v_next = reward if t == len(phis) - 1 else vs[t + 1]
+            delta = max(-1.0, min(1.0, v_next - vs[t]))
+            e[:] = lam * e + phis[t]
+            scale = 1.0 + float(np.dot(e, e)) / len(e)
+            head.w += a_eff * delta * e / scale
+
+    while si < len(stages):
+        tag, games, kind = stages[si]
+        start = prog["sdone"][si]
+        base = prog["total"]
+        opp = {"random": sim.random_policy, "greedy": G.policy}.get(kind)
+        active = []
+        next_gi = start
+        need = games - start
+        done_n = 0
+        while done_n < need or active:
+            while len(active) < K and next_gi < games:
+                total = base + (next_gi - start)
+                frac = total / max(1, span)
+                active.append({"gi": next_gi, "total": total,
+                    "eps": o["eps0"] + (o["eps1"] - o["eps0"]) * frac,
+                    "white": (total % 2 == 0),
+                    "rng": random.Random(o["seed"] * 1000003 + total),
+                    "g": sim.Game(), "us": [], "mover": 0,
+                    "phase": "roll", "kind": kind, "opp": opp, "reward": None})
+                next_gi += 1
+            if use_cuda:
+                gh.w_t.copy_(_torch.from_numpy(head.w).to(gh.dev))
+            finished = []
+            while True:
+                t_req, s_req = [], []
+                alive = []
+                for ag in active:
+                    r = step(ag, t_req, s_req)
+                    if r == "done":
+                        finished.append(ag)
+                    else:
+                        alive.append(ag)
+                active = alive
+                if use_cuda:
+                    if t_req:
+                        q[0] += 1
+                        rr = random.Random(o["seed"] * 1000003 + prog["total"] * 131 + q[0])
+                        picks = gh.choose_batch([(a["g"], m) for a, m in t_req], rr)
+                        for (ag, moves), m in zip(t_req, picks):
+                            if do_apply(ag, m):
+                                finished.append(ag)
+                                active = [a for a in active if a is not ag]
+                    if s_req:
+                        q[0] += 1
+                        rr = random.Random(o["seed"] * 1000003 + prog["total"] * 131 + 7919 + q[0])
+                        picks = gh_snap.choose_batch([(a["g"], m) for a, m in s_req], rr)
+                        for (ag, moves), m in zip(s_req, picks):
+                            if do_apply(ag, m):
+                                finished.append(ag)
+                                active = [a for a in active if a is not ag]
+                if not t_req and not s_req:
+                    break
+            finished.sort(key=lambda a: a["gi"])
+            if finished:
+                if gh is not None:
+                    encs, owners = [], []
+                    for ag in finished:
+                        for s in ag["us"]:
+                            encs.append(FT.encode_state(*s))
+                            owners.append(1)
+                    _P = gh.phi_batch(np.array(encs))
+                    _off = 0
+                    _phis = []
+                    for ag in finished:
+                        _n = len(ag["us"])
+                        _phis.append([p for p in _P[_off:_off + _n]])
+                        _off += _n
+                else:
+                    _phis = [[head.phi(b, bar, off, t) for (b, bar, off, t) in ag["us"]] for ag in finished]
+                for ag, phis in zip(finished, _phis):
+                    vs = [float(head.w @ p) for p in phis]
+                    apply_update(phis, vs, ag["reward"])
+                    prog["total"] += 1
+                    prog["sdone"][si] += 1
+                    if kind == "snap" and prog["total"] % 50 == 0:
+                        prog["snap_w"] = head.w.copy()
+                        if gh_snap is not None:
+                            gh_snap.w_t.copy_(_torch.from_numpy(head.w).to(gh_snap.dev))
+                        elif snap_head is not None:
+                            snap_head.w = head.w.copy()
+                    if prog["total"] % 25 == 0:
+                        print(f"  [{tag}] total {prog['total']}", flush=True)
+                    if o["ckpt_every"] and prog["total"] % o["ckpt_every"] == 0:
+                        head.save(out / f"ckpt_{prog['total']}.npz")
+                        save_state(out, head, prog)
+                    if o["eval_every"] and prog["total"] % o["eval_every"] == 0:
+                        _ev = (lambda g_, m_, r_: gh.choose_batch([(g_, m_)], r_)[0]) if gh else None
+                        sc = eval_vs(head, sim.random_policy, o["eval_games"], 99999, chooser=_ev)
+                        print(f"  eval@{prog['total']}: {100 * sc:.1f}% vs random", flush=True)
+                        if prog["total"] % 500 == 0:
+                            sg = eval_vs(head, G.policy, 40, 777000, chooser=_ev)
+                            print(f"  eval@{prog['total']}: {100 * sg:.1f}% vs greedy (40)", flush=True)
+                        if sc > prog["best"]:
+                            prog["best"] = sc
+                            head.save(out / "best.npz")
+                            print("  new best -> best.npz", flush=True)
+            done_n = prog["sdone"][si] - start
+        prog["stage"] += 1
+        head.save(out / f"stage_{si}.npz")
+        save_state(out, head, prog)
+        si += 1
+    return head
 
 def train_loop_par(head, stages, o, prog, out, pool, gh):
     """Parallel game generation, ordered updates (stale-sync). Games generate in
@@ -310,6 +517,8 @@ def main():
     try:
         if pool is not None:
             train_loop_par(head, stages, o, prog, out, pool, gh)
+        elif o["interleave"] > 1:
+            train_loop_interleaved(head, stages, o, prog, out, gh, gh_snap, snap_head, o["interleave"])
         else:
             train_loop(head, stages, o, prog, out, gh, gh_snap, snap_head)
     finally:
